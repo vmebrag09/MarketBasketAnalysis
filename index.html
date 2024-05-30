@@ -1,0 +1,392 @@
+index.html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Market Basket Analysis Calculator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+
+    <header>
+
+      <h1>Market Basket Analysis Calculator</h1>
+
+    </header>
+
+    <div class="calculate-main">
+
+      <div class="calculate-container">
+
+        <div style="background-color: pink; padding: 20px;">
+
+          <div class="calculate-input1">
+
+            <div class="calculate-input0">
+
+              <div style="margin-right: 100px;">
+      
+              <p>
+                Support:
+              </p>
+
+                <input
+                type="text"
+                id="support"
+              
+                placeholder="type support threshold"
+                />
+              </div>
+             
+              <div>
+
+                <p>
+                  Confidence:
+                </p>
+  
+               <input type="text" id="confidence" placeholder="type confidence" />  
+
+              </div>
+             
+            </div>
+            
+  
+          </div>
+  
+          <h4>Enter transaction data:</h4>
+  
+          <div class="table-container2">
+  
+            <table>
+              <tr>
+                <th>Transaction</th>
+                <th>Items</th>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>
+                  <input
+                    type="text"
+                  
+                    id="transaction1"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  <input
+                    type="text"
+                  
+                    id="transaction2"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>
+                  <input
+                    type="text"
+                    
+                    id="transaction3"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>
+                  <input
+                    type="text"
+               
+                    id="transaction4"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  <input
+                    type="text"
+                
+                    id="transaction5"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>
+                  <input
+                    type="text"
+                   
+                    id="transaction6"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>
+                  <input
+                    type="text"
+                  
+                    id="transaction7"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>
+                  <input
+                    type="text"
+                  
+                    id="transaction8"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>
+                  <input
+                    type="text"
+                    
+                    id="transaction9"
+                    placeholder="Item 1, Item 2, ..."
+                  />
+                </td>
+              </tr>
+            </table>
+  
+          </div>
+
+        </div>
+       
+        <div style="padding-top: 20px; text-align: center;" class="containerofbutton">
+
+          <button onclick="calculate()" id="calculateButton">Calculate</button>
+          <button style="background-color: whitesmoke; margin-left: 15px;"><a href="index.html" style="text-decoration: none; color: #E0709F;">Reset</a></button>
+        </div>
+      </div>
+    </div>
+    <div id="toggle-container" class="button-container"></div>
+    <div id="TablesContainer"></div>
+    <pre id="resultcomputation"></pre>
+    <div id="encap-container">
+      <div id="encap"></div>
+    </div>
+    <script>
+      function calculate() {
+        
+        const st = document.getElementById("support").value;
+        if (st == "") {
+          alert("Empty Support Field");
+        } else {
+          var inputCount = 0;
+          const transactions = [];
+          for (let i = 1; i <= 9; i++) {
+            if(document.getElementById(`transaction${i}`).value === ""){
+              break;
+            }
+            inputCount++;
+            const input = document.getElementById(`transaction${i}`).value;
+            if (input) {
+              const items = input.split(",").map((item) => item.trim());
+              transactions.push(items);
+            }
+          }
+          const support = st;
+          function generateCombinations(transactions, size) {
+            const itemCombinations = {};
+            transactions.forEach((transaction) => {
+              const combinations = getCombinations(transaction, size);
+              combinations.forEach((combination) => {
+                const key = combination.sort().join(", ");
+                itemCombinations[key] = (itemCombinations[key] || 0) + 1;
+              });
+            });
+            return itemCombinations;
+          }
+          function getCombinations(arr, size) {
+            const result = [];
+            const recurse = (start, combination) => {
+              if (combination.length === size) {
+                result.push([...combination]);
+                return;
+              }
+              for (let i = start; i < arr.length; i++) {
+                combination.push(arr[i]);
+                recurse(i + 1, combination);
+                combination.pop();
+              }
+            };
+            recurse(0, []);
+            return result;
+          }
+          const combinationresult = {};
+          const resultcount = {};
+          const result = {};
+          for (let i = 1; i < 7; i++) {
+            result[i] = generateCombinations(transactions, i);
+            combinationresult[i] = [];
+            resultcount[i] = [];
+          }
+          const filteredResult = [];
+          const dividendComb = [];
+          var finalTable = 0;
+          for (let i = 1; i < 7; i++) {
+            for (const [combination, count] of Object.entries(result[i])) {
+              if (count >= support) {
+                filteredResult.push([
+                  combination.split(",").map((item) => item.trim()),
+                  count,
+                ]);
+                finalTable = i;
+                combinationresult[i].push(
+                  `${combination}: ${count}`
+                );
+                resultcount[i].push(`${count}`);
+              }
+            }
+          }
+          var lastTableLength =
+            filteredResult[filteredResult.length - 1][0].length;
+          const dividerComb = [...filteredResult];
+          for (var i = filteredResult.length - 1; i >= 0; i--) {
+            var currentLength = filteredResult[i][0].length;
+            if (lastTableLength !== currentLength) {
+              break;
+            }
+            dividendComb.push(filteredResult[i]);
+            dividerComb.pop();
+          }
+          const isMatch = (CMB, hCMB) => {
+            CMBLoop: for (var i = 0; i < CMB.length; i++) {
+              hCMBLoop: for (var j = 0; j < hCMB.length; j++) {
+                if (CMB[i] === hCMB[j]) {
+                  continue CMBLoop;
+                }
+                if (j === hCMB.length - 1) {
+                  return false;
+                }
+              }
+            }
+            return true;
+          };
+          const confidences = [];
+          for (var i = dividendComb.length - 1; i >= 0; i--) {
+            var confidence = [];
+            for (var j = 0; j < dividerComb.length; j++) {
+              const CMB = dividerComb[j][0];
+              const OCC = dividerComb[j][1];
+              const hCMB = dividendComb[i][0];
+              const hOCC = dividendComb[i][1];
+              if (isMatch(CMB, hCMB) === true) {
+                confidence.push({
+                  divider: CMB,
+                  dividerOCC: OCC,
+                  dividend: hCMB,
+                  dividendOCC: hOCC,
+                  confidence: (hOCC / OCC) * 100,
+                });
+              }
+            }
+
+            confidences.push(confidence);
+          }
+            var mainContainer = document.createElement('div');
+            mainContainer.classList.add('main-container');
+            var body = document.body;
+            body.appendChild(mainContainer);
+            var container = document.createElement('div');
+            container.id = 'TablesContainer';
+            mainContainer.appendChild(container);
+            for (let i = 1; i < 7; i++) {
+              var tableContainer = document.createElement('div');
+              tableContainer.classList.add('table-container');
+              var heading = document.createElement('h1');
+              heading.textContent = 'Table ' + i;
+              var table = document.createElement('table');
+              table.classList.add('custom-table'); 
+              var thead = document.createElement('thead');
+              var headerRow = thead.insertRow();
+              var itemsetHeader = document.createElement('th');
+              itemsetHeader.textContent = 'Item';
+              headerRow.appendChild(itemsetHeader);
+              var frequencyHeader = document.createElement('th');
+              frequencyHeader.textContent = 'Occurrences';
+              headerRow.appendChild(frequencyHeader);
+              var tbody = document.createElement('tbody');
+              for (let j = 0; j < combinationresult[i].length; j++) {
+                var row = tbody.insertRow();
+                var combinationAndOccurrence = combinationresult[i][j].split(":");
+                var combination = combinationAndOccurrence[0].trim();
+                var occurrence = combinationAndOccurrence[1].trim();
+                var combinationCell = row.insertCell();
+                combinationCell.textContent = combination;
+                combinationCell.classList.add('custom-cell');
+                var occurrenceCell = row.insertCell();
+                occurrenceCell.textContent = occurrence;
+                occurrenceCell.classList.add('custom-cell');
+              }
+              table.appendChild(thead);
+              table.appendChild(tbody);
+              tableContainer.appendChild(heading);
+              tableContainer.appendChild(table);
+              container.appendChild(tableContainer);
+            }
+              function toggleContent() {
+                var content = document.getElementById('content');
+                content.classList.toggle('hidden');
+              }
+              var toggleButton = document.createElement('div');
+              var toggleContainer = document.getElementById('toggle-container')
+              toggleButton.classList.add('arrow')
+              toggleButton.textContent = ' ';
+              toggleButton.addEventListener('click', toggleContent);
+              toggleContainer.appendChild(toggleButton);
+              var arr = document.querySelector('.arrow');
+              arr.addEventListener('click', function(event) {
+              event.target.classList.toggle('down');
+              });
+              function toggleContent() {
+                mainContainer.style.display = (mainContainer.style.display === 'none') ? 'flex' : 'none';
+              }
+              var cardContainer = document.getElementById('encap');
+              cardContainer.classList.add('card-container');
+              // console.log(confidences);
+
+              for(let j = 0; j < confidences.length; j++){
+                for (let i = 0; i < confidences[j].length; i++) {
+                if(confidences[j][i].confidence < document.getElementById("confidence").value){
+                  continue;
+                }
+                var card = document.createElement('div');
+                card.classList.add('card');
+                let roundoff = Math.round(confidences[j][i].confidence);
+                var contentWrapper = document.createElement('div');
+                contentWrapper.classList.add('content-wrapper');
+                var cardTitle = document.createElement('h3');
+                cardTitle.textContent = `{${confidences[j][i].dividend}} / {${confidences[j][i].divider}}`;
+                var cardContent = document.createElement('pre');
+                cardContent.textContent = `   ${confidences[j][i].dividendOCC}\n ----- * 100% = ${roundoff}% \n   ${confidences[j][i].dividerOCC}`;
+                contentWrapper.appendChild(cardTitle);
+                contentWrapper.appendChild(cardContent);
+                card.appendChild(contentWrapper);
+                cardContainer.appendChild(card);
+              }
+              }
+     
+          document.body.appendChild(cardContainer);
+        }
+
+        document.getElementById('calculateButton').disabled = true;
+      }
+    </script>
+  </body>
+</html>
